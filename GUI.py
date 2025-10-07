@@ -89,4 +89,3 @@ if st.button("预测 NPV"):
 
     # 使用 st.components.v1.html 显示 SHAP 图
     components.html(shap_html, height=200)
-        st.pyplot(fig, use_container_width=True)
