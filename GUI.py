@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import shap
 import matplotlib.pyplot as plt
+import streamlit.components.v1 as components
 
 # --- 1. 加载模型 ---
 # 确保你的模型文件 'Xgboost.pkl' 和这个脚本在同一个目录下
@@ -71,22 +72,21 @@ if st.button("预测 NPV"):
     st.header("模型预测解释")
     st.write("下图展示了各个输入特征如何影响本次的预测结果。红色特征推动预测值升高，蓝色特征推动预测值降低。")
 
-    # 计算 SHAP 值并展示 force plot
-    # TreeExplainer 适用于 XGBoost, LightGBM, CatBoost 等树模型
+    # 计算 SHAP 值
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(features_df)
 
-    # 使用 st.pyplot 来显示 matplotlib 图像
-    # 我们创建一个新的 figure 来绘制 SHAP 图
-    fig, ax = plt.subplots(figsize=(10, 3))
-    shap.force_plot(
-        explainer.expected_value,
-        shap_values[0],
-        features_df.iloc[0],
-        matplotlib=True,
-        show=False, # 禁止图形直接显示
-        ax=ax
+    # 生成 HTML 版本的 SHAP 图
+    # shap.force_plot 默认返回一个可以渲染为 HTML 的对象
+    force_plot = shap.force_plot(
+        base_value=explainer.expected_value,
+        shap_values=shap_values[0],
+        features=features_df.iloc[0]
     )
-    # 使用 tight_layout 优化布局
-    fig.tight_layout()
-    st.pyplot(fig, use_container_width=True)
+
+    # 将绘图对象转换为 HTML 字符串
+    shap_html = f"<head>{shap.getjs()}</head><body>{force_plot.html()}</body>"
+
+    # 使用 st.components.v1.html 显示 SHAP 图
+    components.html(shap_html, height=200)
+        st.pyplot(fig, use_container_width=True)
