@@ -215,20 +215,20 @@ with st.expander("🔬 查看模型总体特征重要性"):
         background_key = f"{','.join(sample_df.columns)}|{len(sample_df)}"
         explainer_global = get_explainer_for_background(background_key, sample_df)
 
-        # 统一新接口
+        # 统一新接口，得到 Explanation 对象
         sv_global = explainer_global(sample_df)
 
         # --- 修改部分 开始 ---
-    
-        # 1. 明确创建一个 Figure 和 Axes 对象
-        #    为了避免图像过于拥挤，可以适当调整图形大小
-        fig, ax = plt.subplots(figsize=(10, 8))
 
-        # 2. 将 Axes 对象 (ax) 传递给 shap.summary_plot
-        #    这样 SHAP 就知道在哪个具体的“画布”上绘制图形
-        shap.summary_plot(sv_global.values, sample_df, show=False, color_bar=False, ax=ax)
-        
-        # 3. 将包含完整图形（包括 colorbar）的 Figure 对象传递给 Streamlit
+        # 1. 【重要】直接将整个 Explanation 对象 (sv_global) 传递给 summary_plot。
+        #    不要使用 sv_global.values。这样会触发 SHAP 最新的、最稳定的绘图逻辑。
+        #    这个新逻辑能正确处理图形和颜色条的创建。
+        shap.summary_plot(sv_global, show=False)
+
+        # 2. 在调用 SHAP 绘图后，使用 plt.gcf() 来获取刚刚被 SHAP 创建和绘制的完整图形。
+        fig = plt.gcf()
+
+        # 3. 将捕获到的图形对象传递给 Streamlit 进行显示。
         st.pyplot(fig)
 
         # --- 修改部分 结束 ---
