@@ -223,7 +223,7 @@ with st.expander("🔬 查看模型总体特征重要性"):
         # 1. 【重要】直接将整个 Explanation 对象 (sv_global) 传递给 summary_plot。
         #    不要使用 sv_global.values。这样会触发 SHAP 最新的、最稳定的绘图逻辑。
         #    这个新逻辑能正确处理图形和颜色条的创建。
-        shap.summary_plot(sv_global, show=False)
+        shap.summary_plot(sv_global, color_bar = False, show=False)
 
         # 2. 在调用 SHAP 绘图后，使用 plt.gcf() 来获取刚刚被 SHAP 创建和绘制的完整图形。
         fig = plt.gcf()
