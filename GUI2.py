@@ -155,9 +155,25 @@ with st.expander("🔬 查看模型总体特征重要性"):
     }
     sample_df = pd.DataFrame(sample_data)
 
+    # --- START: 关键修复代码 ---
+    # 检查并修正模型内部的 base_score 参数格式
+    try:
+        booster = model.get_booster()
+        # 获取原始配置
+        config = booster.save_config()
+        # 清理 base_score 字符串 (去除方括号)
+        config = config.replace('"base_score":"[', '"base_score":"').replace(']"', '"')
+        # 将修正后的配置加载回模型
+        booster.load_config(config)
+    except Exception as e:
+        st.warning(f"修正模型配置时出现轻微错误: {e}. 仍将尝试继续...")
+    # --- END: 关键修复代码 ---
+
     explainer_global = shap.TreeExplainer(model)
     shap_values_global = explainer_global.shap_values(sample_df)
 
-    fig, ax = plt.subplots()
-    shap.summary_plot(shap_values_global, sample_df, show=False)
+    # 创建一个新图形，避免 Streamlit 的缓存警告
+    fig, ax = plt.subplots(figsize=(10, 6), dpi=150)
+    shap.summary_plot(shap_values_global, sample_df, show=False, plot_size=None)
+    plt.tight_layout() # 调整布局，防止标签重叠
     st.pyplot(fig)
