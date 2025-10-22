@@ -217,11 +217,14 @@ with st.expander("🔬 查看模型总体特征重要性"):
 
         # 统一新接口
         sv_global = explainer_global(sample_df)
+        import matplotlib.pyplot as plt
+        plt.close('all')  # 清理遗留状态（可选）
 
-        # 画全局摘要图
-        fig, ax = plt.subplots()
+        # 让 SHAP 自己创建图并画完
         shap.summary_plot(sv_global.values, sample_df, show=False)
-        st.pyplot(fig)
+
+        # 取 SHAP 刚画完的这张图
+        fig = plt.gcf()
+        st.pyplot(fig, clear_figure=True)
     except Exception as e:
         st.error(f"生成全局 SHAP 摘要图失败：{e}")
-        st.info("提示：请检查 shap/xgboost/numpy 的版本是否相互兼容。建议固定依赖版本以避免云端环境变化导致的报错。")
