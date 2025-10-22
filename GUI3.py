@@ -30,9 +30,20 @@ def convert_df_to_csv(df: pd.DataFrame) -> bytes:
 # --- 1. 加载模型 ---
 @st.cache_resource
 def load_model():
+    import xgboost as xgb
+    import joblib
     try:
-        model = joblib.load('Xgboost.pkl')
-        return model
+        mdl = joblib.load('Xgboost.pkl')  # 先按原方式读进来（可能是 2.x 训练的）
+        # 将旧包装器里的 Booster 导出为 JSON，再用当前版本重建
+        try:
+            booster = mdl.get_booster()
+            booster.save_model('Xgboost.json')
+            reg = xgb.XGBRegressor()
+            reg.load_model('Xgboost.json')   # 用当前 xgboost 版本加载
+            return reg
+        except Exception:
+            # 没有 get_booster（或其它问题）就直接返回原模型，让外层报错信息可见
+            return mdl
     except FileNotFoundError:
         return None
     except Exception as e:
