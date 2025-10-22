@@ -217,14 +217,21 @@ with st.expander("🔬 查看模型总体特征重要性"):
 
         # 统一新接口
         sv_global = explainer_global(sample_df)
-        import matplotlib.pyplot as plt
-        plt.close('all')  # 清理遗留状态（可选）
 
-        # 让 SHAP 自己创建图并画完
+        # --- 修改部分 开始 ---
+    
+        # 1. 直接调用 SHAP 绘图，它会在 matplotlib 的“当前”图形上绘制
+        #    我们不需要手动创建 fig, ax
         shap.summary_plot(sv_global.values, sample_df, show=False)
-
-        # 取 SHAP 刚画完的这张图
+    
+        # 2. 使用 plt.gcf() (Get Current Figure) 来获取 SHAP 刚刚绘制好的图形
         fig = plt.gcf()
-        st.pyplot(fig, clear_figure=True)
+    
+        # 3. 将这个捕获到的图形传递给 streamlit
+        st.pyplot(fig)
+
+        # --- 修改部分 结束 ---
+
     except Exception as e:
         st.error(f"生成全局 SHAP 摘要图失败：{e}")
+        st.info("提示：请检查 shap/xgboost/numpy 的版本是否相互兼容。建议固定依赖版本以避免云端环境变化导致的报错。")
