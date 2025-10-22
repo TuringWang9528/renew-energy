@@ -220,14 +220,15 @@ with st.expander("🔬 查看模型总体特征重要性"):
 
         # --- 修改部分 开始 ---
     
-        # 1. 直接调用 SHAP 绘图，它会在 matplotlib 的“当前”图形上绘制
-        #    我们不需要手动创建 fig, ax
-        shap.summary_plot(sv_global.values, sample_df, show=False)
-    
-        # 2. 使用 plt.gcf() (Get Current Figure) 来获取 SHAP 刚刚绘制好的图形
-        fig = plt.gcf()
-    
-        # 3. 将这个捕获到的图形传递给 streamlit
+        # 1. 明确创建一个 Figure 和 Axes 对象
+        #    为了避免图像过于拥挤，可以适当调整图形大小
+        fig, ax = plt.subplots(figsize=(10, 8))
+
+        # 2. 将 Axes 对象 (ax) 传递给 shap.summary_plot
+        #    这样 SHAP 就知道在哪个具体的“画布”上绘制图形
+        shap.summary_plot(sv_global.values, sample_df, show=False, ax=ax)
+        
+        # 3. 将包含完整图形（包括 colorbar）的 Figure 对象传递给 Streamlit
         st.pyplot(fig)
 
         # --- 修改部分 结束 ---
