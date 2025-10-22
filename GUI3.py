@@ -226,7 +226,7 @@ with st.expander("🔬 查看模型总体特征重要性"):
 
         # 2. 将 Axes 对象 (ax) 传递给 shap.summary_plot
         #    这样 SHAP 就知道在哪个具体的“画布”上绘制图形
-        shap.summary_plot(sv_global.values, sample_df, show=False, ax=ax)
+        shap.summary_plot(sv_global.values, sample_df, show=False, color_bar=False, ax=ax)
         
         # 3. 将包含完整图形（包括 colorbar）的 Figure 对象传递给 Streamlit
         st.pyplot(fig)
